@@ -1,0 +1,32 @@
+# systemd user service for Pod Captain.
+#   make install-systemd
+# or manually:
+#   cp podcaptain.service ~/.config/systemd/user/
+#   systemctl --user daemon-reload && systemctl --user enable --now podcaptain
+# To keep it running while you are logged out: loginctl enable-linger $USER
+[Unit]
+Description=Pod Captain - publish a folder of media files as a podcast feed
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=%h/.local/bin/podcaptain -config %h/.config/podcaptain/config.yaml
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+RestartSec=5
+
+# Hardening: Pod Captain only needs to read the library and bind a port.
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=read-only
+# The file injector writes to the library and inject folders. If you enable
+# it, list them here (adjust to your config), then daemon-reload:
+#ReadWritePaths=%h/Podcasts/Library %h/Podcasts/Inject
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+
+[Install]
+WantedBy=default.target

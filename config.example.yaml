@@ -1,0 +1,303 @@
+# =============================================================================
+# Pod Captain configuration
+# =============================================================================
+#
+# Copy this file to ~/.config/podcaptain/config.yaml (or run `make config`),
+# edit it, then check it with:   podcaptain -check
+#
+# Conventions used below:
+#   - Every option is shown with its DEFAULT value unless marked REQUIRED or
+#     "example". Anything you delete falls back to that default.
+#   - Durations are written like 30s, 5m, 1h30m.
+#   - Paths: ~ and $ENVIRONMENT_VARIABLES are expanded. Relative paths are
+#     resolved against the directory this file lives in.
+#   - Unknown keys are an error, so typos are caught by `podcaptain -check`.
+#
+# The README has a full reference table for every option.
+
+
+# -----------------------------------------------------------------------------
+# library: the folder that becomes your feed
+# -----------------------------------------------------------------------------
+library:
+  # REQUIRED. The folder to publish. Every matching file in it and its
+  # subfolders becomes an episode. Pod Captain only ever READS this folder:
+  # it never renames, retags, moves or deletes anything in it.
+  # Avoid ~/Documents, ~/Desktop, ~/Downloads, iCloud Drive and external
+  # disks on macOS unless you grant Full Disk Access (see README, "macOS
+  # permissions").
+  path: ~/Podcasts/Library
+
+  # How often the folder is rescanned for added, changed or removed files.
+  # Only new or changed files are re-read, so frequent scans are cheap.
+  # Send the process SIGHUP to rescan immediately.
+  scan_interval: 5m
+
+  # File extensions (case-insensitive, without the dot) to publish. The default
+  # list is what Apple Podcasts can play. Other podcast apps may also handle
+  # flac, ogg, opus, wav, aac, mkv or webm; add those only if your app plays
+  # them.
+  extensions: [mp3, m4a, m4b, mp4, m4v, mov]
+
+  # Files modified more recently than this are skipped until a later scan, so a
+  # file that is still being copied in is never published half-written.
+  settle_time: 30s
+
+  # Also publish dotfiles and the contents of dot-folders (e.g. ".archive/").
+  # Hidden entries are skipped by default.
+  include_hidden: false
+
+
+# -----------------------------------------------------------------------------
+# server: the built-in web server that serves the feed and the media files
+# -----------------------------------------------------------------------------
+server:
+  # Address and port to listen on. ":8080" listens on every network interface.
+  # When a proxy such as Tailscale Serve or Caddy sits in front of Pod
+  # Captain, use "127.0.0.1:8080" so Pod Captain is only reachable through
+  # that proxy.
+  listen: ":8080"
+
+  # The URL your podcast app uses to reach Pod Captain, with no trailing slash.
+  # Every link inside the feed is built from it, so it must be reachable from
+  # your phone, not just from this computer.
+  # Apple Podcasts is unreliable with plain http:// (it can fail silently), so
+  # use https://. The value below is an example.
+  # Default when empty: http://<this computer's hostname>:<port> (a guess,
+  # logged as a warning).
+  base_url: https://my-mac.example-tailnet.ts.net
+
+  # Optional secret path segment. When set, the feed lives at
+  # <base_url>/<token>/feed.xml and every request without the token gets a 404.
+  # Strongly recommended whenever the server is reachable from the internet.
+  # Letters, digits, - and _ only. Generate one with: openssl rand -hex 16
+  token: ""
+
+  # Serve HTTPS directly. Leave both empty when TLS is handled by Tailscale
+  # Serve or a reverse proxy (recommended). If used, the certificate must be
+  # trusted by your phone; self-signed certificates are rejected.
+  tls:
+    cert_file: ""   # PEM certificate (full chain)
+    key_file: ""    # PEM private key
+
+
+# -----------------------------------------------------------------------------
+# feed: how the show appears in your podcast app
+# -----------------------------------------------------------------------------
+feed:
+  # Show name.
+  title: Pod Captain
+
+  # Show description.
+  description: Local media published by Pod Captain
+
+  # Show author/host, shown under the title. Empty = omitted.
+  author: ""
+
+  # Language code of the show (ISO 639, e.g. en, en-us, de, he).
+  language: en
+
+  # Website link for the show. Empty = the feed's own URL.
+  link: ""
+
+  # Show artwork: a local image file or an http(s) URL. Empty = no artwork.
+  # Apple's spec: square JPEG or PNG, 1400x1400 to 3000x3000 px, RGB, no
+  # transparency. Episodes with embedded cover art also get their own artwork.
+  image: ""
+
+  # One Apple Podcasts category, spelled exactly as Apple lists it, e.g.
+  # "Education", "Technology", "Society & Culture". Empty = omitted.
+  category: ""
+
+  # Mark the show as explicit.
+  explicit: false
+
+  # Where the most recent episode goes:
+  #   oldest_first: oldest at the top, most recent at the end
+  #   newest_first: most recent at the top
+  # "Most recent" uses each episode's date: embedded metadata first, then a
+  # date in the filename, then the file's modification time.
+  order: oldest_first
+
+  # Apple Podcasts ignores the order of episodes in the feed file and sorts by
+  # this show type instead:
+  #   serial:   episodes numbered 1..N and listed oldest first
+  #   episodic: listed newest first
+  # Empty (recommended) picks the one that matches `order`:
+  # oldest_first -> serial, newest_first -> episodic.
+  type: ""
+
+  # Add <itunes:block>Yes</itunes:block> so the feed can never be listed in the
+  # public Apple Podcasts directory. Keep this on for a private feed.
+  block: true
+
+
+# -----------------------------------------------------------------------------
+# metadata: how episode details are read from files
+# -----------------------------------------------------------------------------
+metadata:
+  # Path to ffprobe (installed with ffmpeg). ffprobe reads tags, dates and
+  # durations from almost every audio/video format.
+  #   ""     = look for ffprobe in $PATH
+  #   "none" = don't use it; fall back to the built-in tag reader, which can't
+  #            read durations and understands fewer formats
+  #   a path = use that binary, e.g. /opt/homebrew/bin/ffprobe
+  ffprobe: ""
+
+  # How many files are read at the same time when many new files appear at once.
+  workers: 4
+
+
+# -----------------------------------------------------------------------------
+# inject: the optional file injector
+# -----------------------------------------------------------------------------
+# Drop any audio or video file into the inject folder. Pod Captain waits until
+# the copy has finished, converts it with ffmpeg into a format Apple Podcasts
+# plays, puts the result in the library (in a matching subfolder when it can
+# find one), then moves the original to a "done" folder.
+#
+# Unlike the library, the injector DOES move files (and deletes them if you set
+# originals.action: delete), but only files in the inject folder. Files already
+# in the library are never touched; results are added under new names and never
+# overwrite anything.
+inject:
+  # Turn the injector on. Requires ffmpeg and ffprobe.
+  enabled: false
+
+  # The inject folder. Empty = a folder named "Inject" next to library.path
+  # (with the default library that's ~/Podcasts/Inject). Created if missing.
+  # The inject, originals and failed folders must all be OUTSIDE the library.
+  path: ""
+
+  # How often the inject folder is checked for new files.
+  scan_interval: 30s
+
+  # How long a file's size and modification time must stay unchanged, across
+  # at least two checks, before it's processed. This keeps copies and
+  # downloads in progress from being converted half-finished. Raise it (e.g.
+  # 5m) for slow network shares or transfers that may stall.
+  settle_time: 60s
+
+  # Input file extensions to pick up (case-insensitive, without the dot).
+  # Files with other extensions, and hidden files, are left alone. That covers
+  # partial downloads like .part, .crdownload and .download.
+  extensions: [mp3, m4a, m4b, aac, wav, aif, aiff, flac, alac, ogg, oga, opus,
+               wma, caf, amr, mp4, m4v, mov, mkv, webm, avi, wmv, flv, ts,
+               mpg, mpeg, 3gp]
+
+  # What happens to the original after a successful conversion.
+  originals:
+    # "move": move it into `path` below (keeps its subfolder structure)
+    # "delete": delete it permanently
+    action: move
+    # Where originals are moved. Empty = <inject path>/done. Point it somewhere
+    # else (e.g. a folder you empty regularly) to make cleanup easier.
+    path: ""
+
+  # Files that can't be converted (corrupt, no audio, ffmpeg error) are moved
+  # here along with a <name>.log explaining why, so they aren't retried on
+  # every scan. To retry, fix the problem and move the file back into the
+  # inject folder. Empty = <inject path>/failed.
+  failed_path: ""
+
+  # Path to ffmpeg. Empty = look for it in $PATH. (ffprobe comes from
+  # metadata.ffprobe; if that's "none", the injector looks in $PATH.)
+  ffmpeg: ""
+
+  # Number of CPU threads ffmpeg may use. 0 = let ffmpeg decide (all cores).
+  # Lower it to keep the computer responsive during large video conversions.
+  threads: 0
+
+  # What to do with files Apple Podcasts can already play (MP3 audio, AAC
+  # audio, H.264 video):
+  #   passthrough: copy those streams as-is into a clean file. No quality loss,
+  #                and nearly instant.
+  #   transcode:   always re-encode using the audio/video settings below, e.g.
+  #                to make smaller files for metered mobile data.
+  # Everything else (FLAC, WAV, Opus, HEVC, ...) is always converted.
+  compatible: passthrough
+
+  # What to do with video files:
+  #   keep:       output video (H.264 video + AAC audio in .mp4)
+  #   audio_only: output only the audio (AAC in .m4a)
+  video_mode: keep
+
+  audio:
+    # AAC encoder. "auto" picks the best one your ffmpeg has: libfdk_aac, then
+    # aac_at (Apple's AudioToolbox encoder, macOS only), then ffmpeg's own aac.
+    encoder: auto
+
+    # Bitrates used when audio is (re-)encoded. Apple's guidance for feeds:
+    # AAC, mono 64-128 kbps, stereo 128-256 kbps. For spoken word, mono 64k-96k
+    # sounds fine and roughly halves file size.
+    bitrate_mono: 96k
+    bitrate_stereo: 160k
+
+    # Output channels when encoding:
+    #   0 = same as the source (anything above stereo is mixed down to stereo)
+    #   1 = force mono (good for speech and saving data)
+    #   2 = force stereo
+    # A forced value also makes passthrough files re-encode if their channel
+    # count differs.
+    channels: 0
+
+    # Output sample rate in Hz when encoding. 0 = keep 44100/48000 sources and
+    # resample anything else to 48000. A fixed value (e.g. 44100) also makes
+    # passthrough files re-encode if their rate differs.
+    sample_rate: 0
+
+    # Normalize loudness when audio is re-encoded (never applied to passthrough
+    # copies). Apple recommends about -16 LUFS. Useful when mixing sources that
+    # are much louder or quieter than each other. It changes the audio, so it's
+    # off by default.
+    loudnorm: false
+    loudness_target: -16
+
+  video:
+    # ffmpeg video encoder. libx264 (H.264) is the most compatible choice for
+    # Apple Podcasts. On Apple Silicon, h264_videotoolbox is much faster but
+    # ignores crf and produces larger files.
+    encoder: libx264
+
+    # Quality for libx264, 0-51: lower means better quality and bigger files.
+    # 18 is visually near-lossless, 23 is the x264 default, 28 is small.
+    crf: 23
+
+    # libx264 speed/size trade-off: ultrafast, superfast, veryfast, faster,
+    # fast, medium, slow, slower, veryslow. Slower = smaller file at the same
+    # quality.
+    preset: medium
+
+    # Video taller than this many pixels is scaled down, keeping the aspect
+    # ratio. 0 = never scale. 1080 keeps phone downloads reasonable.
+    max_height: 1080
+
+  # Which library subfolder a converted file goes into. The checks run in
+  # this order and the first clear match wins:
+  #   1. The subfolder you dropped it into: Inject/My Show/ep.flac goes to
+  #      Library/My Show/ (or to Library/My Show/Season 2/ for
+  #      Inject/My Show/Season 2/ep.flac, if that folder exists).
+  #   2. An embedded tag, from the list below, equal to a library subfolder
+  #      name.
+  #   3. A library subfolder name appearing as whole words in the file name
+  #      (names shorter than 3 characters are ignored).
+  # Matching ignores case and punctuation. No match, or two equally good
+  # matches, means the file goes to the top level of the library. Only folders
+  # that already exist are used; the injector never creates library folders.
+  routing:
+    # Tags to check, highest priority first.
+    tags: [show, album, album_artist, artist, grouping]
+    # Turn off step 3 if file names cause wrong matches.
+    filename: true
+
+
+# -----------------------------------------------------------------------------
+# log: diagnostic output (stderr; ~/Library/Logs/podcaptain.log under launchd,
+# journalctl under systemd)
+# -----------------------------------------------------------------------------
+log:
+  # debug, info, warn or error. "debug" also logs every HTTP request, each
+  # file's resolved title/date, and why injected files are still waiting.
+  level: info
+  # "text" for people, "json" for log collectors.
+  format: text

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  macOS LaunchAgent for Pod Captain. `make install-launchd` fills in the
+  @PLACEHOLDERS@ and loads it; see README for manual steps.
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>local.podcaptain</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>@BINARY@</string>
+    <string>-config</string>
+    <string>@CONFIG@</string>
+  </array>
+
+  <!-- launchd's default PATH lacks Homebrew, where ffprobe usually lives. -->
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+  </dict>
+
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>ProcessType</key>
+  <string>Background</string>
+
+  <key>StandardOutPath</key>
+  <string>@LOGDIR@/podcaptain.log</string>
+  <key>StandardErrorPath</key>
+  <string>@LOGDIR@/podcaptain.log</string>
+</dict>
+</plist>
