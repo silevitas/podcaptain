@@ -1,4 +1,4 @@
-module github.com/example/podcaptain
+module github.com/silevitas/podcaptain
 
 go 1.23
 

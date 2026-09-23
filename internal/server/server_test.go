@@ -13,9 +13,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/example/podcaptain/internal/config"
-	"github.com/example/podcaptain/internal/library"
-	"github.com/example/podcaptain/internal/metadata"
+	"github.com/silevitas/podcaptain/internal/config"
+	"github.com/silevitas/podcaptain/internal/library"
+	"github.com/silevitas/podcaptain/internal/metadata"
 )
 
 type parsedFeed struct {

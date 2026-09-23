@@ -84,7 +84,7 @@ explained in [Setup in detail](#setup-in-detail).
 brew install go ffmpeg git
 
 # Build and install to ~/.local/bin (make sure it's on your PATH)
-git clone https://github.com/example/podcaptain.git && cd podcaptain
+git clone https://github.com/silevitas/podcaptain.git && cd podcaptain
 make install
 make config                                  # writes ~/.config/podcaptain/config.yaml
 
@@ -147,7 +147,7 @@ with Homebrew on Linux (`brew install go`).
 ### 2. Build and install Pod Captain
 
 ```sh
-git clone https://github.com/example/podcaptain.git
+git clone https://github.com/silevitas/podcaptain.git
 cd podcaptain
 make install
 ```

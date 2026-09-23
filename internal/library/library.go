@@ -16,8 +16,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/example/podcaptain/internal/config"
-	"github.com/example/podcaptain/internal/metadata"
+	"github.com/silevitas/podcaptain/internal/config"
+	"github.com/silevitas/podcaptain/internal/metadata"
 )
 
 // Episode is one media file in the library.

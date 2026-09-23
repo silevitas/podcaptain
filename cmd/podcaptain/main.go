@@ -14,11 +14,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/example/podcaptain/internal/config"
-	"github.com/example/podcaptain/internal/inject"
-	"github.com/example/podcaptain/internal/library"
-	"github.com/example/podcaptain/internal/metadata"
-	"github.com/example/podcaptain/internal/server"
+	"github.com/silevitas/podcaptain/internal/config"
+	"github.com/silevitas/podcaptain/internal/inject"
+	"github.com/silevitas/podcaptain/internal/library"
+	"github.com/silevitas/podcaptain/internal/metadata"
+	"github.com/silevitas/podcaptain/internal/server"
 )
 
 // version is set at build time with -ldflags "-X main.version=...".

@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/example/podcaptain/internal/config"
+	"github.com/silevitas/podcaptain/internal/config"
 )
 
 func defaults(t *testing.T) config.Inject {

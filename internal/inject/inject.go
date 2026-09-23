@@ -20,7 +20,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/example/podcaptain/internal/config"
+	"github.com/silevitas/podcaptain/internal/config"
 )
 
 // Injector watches the inject folder.

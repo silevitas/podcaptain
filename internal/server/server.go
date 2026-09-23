@@ -17,10 +17,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/example/podcaptain/internal/config"
-	"github.com/example/podcaptain/internal/feed"
-	"github.com/example/podcaptain/internal/library"
-	"github.com/example/podcaptain/internal/metadata"
+	"github.com/silevitas/podcaptain/internal/config"
+	"github.com/silevitas/podcaptain/internal/feed"
+	"github.com/silevitas/podcaptain/internal/library"
+	"github.com/silevitas/podcaptain/internal/metadata"
 )
 
 // Server publishes a library as a podcast feed.

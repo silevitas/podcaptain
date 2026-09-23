@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/example/podcaptain/internal/config"
+	"github.com/silevitas/podcaptain/internal/config"
 )
 
 // stream is the subset of ffprobe stream info the planner needs.

@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/example/podcaptain/internal/config"
-	"github.com/example/podcaptain/internal/library"
+	"github.com/silevitas/podcaptain/internal/config"
+	"github.com/silevitas/podcaptain/internal/library"
 )
 
 // URLs builds absolute URLs for resources referenced by the feed.
